@@ -47,7 +47,7 @@ export class ProductsController {
   }
 
   @Delete('/:id')
-  remove(@Param('id', MongoIdPipe) id: string): Promise<string> {
+  remove(@Param('id', MongoIdPipe) id: string): Promise<object> {
     return this.productsService.delete(id);
   }
 }

@@ -8,6 +8,7 @@ export const createProductSchema = z.object({
   price: z.number().positive('Price must be a positive number'),
   tags: z.string().array().optional(),
   status: z.nativeEnum(Status).optional(),
+  categories: z.string().array().min(1),
 });
 
 export const updateProductSchema = createProductSchema.partial();

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { Status } from '../../@core/enum/common';
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -22,6 +22,9 @@ export class Product {
 
   @Prop({ type: Number, enum: Status, default: Status.PENDING })
   status: number;
+
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Categroy' }])
+  categories: string[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

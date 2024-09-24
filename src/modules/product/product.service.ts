@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { Product } from './product.schema';
 
@@ -40,10 +40,36 @@ export class ProductsService {
   async findOne(id: string): Promise<Product> {
     const product = await this.ProductModel.findById(id);
 
+    const product2 = await this.ProductModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categories',
+          foreignField: '_id',
+          as: 'categories',
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          _id: 1,
+          price: 1,
+          tags: 1,
+          status: 1,
+          categories: { _id: 1, title: 1 },
+        },
+      },
+    ]);
+
     if (!product) {
       throw new NotFoundException('Item not found');
     }
-    return product;
+    return product2[0];
   }
 
   async update(
@@ -63,11 +89,11 @@ export class ProductsService {
     return updateData;
   }
 
-  async delete(id: string): Promise<string> {
+  async delete(id: string): Promise<object> {
     const product = await this.ProductModel.findByIdAndDelete(id);
     if (!product) {
       throw new NotFoundException('Item not found');
     }
-    return 'Product deleted';
+    return { message: 'Product deleted' };
   }
 }
